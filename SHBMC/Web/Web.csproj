@@ -90,22 +90,14 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Company.cs" />
-    <Compile Include="EmployeeDepartment.cs" />
     <Compile Include="HKGL004.cs" />
-    <Compile Include="KV.cs" />
-    <Compile Include="LeaveKind.cs" />
-    <Compile Include="Manager.cs" />
+    <Compile Include="HKGL034.cs" />
     <Compile Include="MCloudEFGP.asmx.cs">
       <DependentUpon>MCloudEFGP.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="OrgUnit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResponseState.cs" />
-    <Compile Include="Title.cs" />
-    <Compile Include="TitleDefinition.cs" />
-    <Compile Include="Users.cs" />
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
