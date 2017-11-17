@@ -157,7 +157,7 @@ namespace cn.hanbell.mcloud.HKGL034
                 tRCPBodyInfo.Value = "";
 
                 //單身清單屬性
-                tRCPBodyInfo.AddCustomTag("DesplayColumn", "id§dateC§time§worktime§food§note");
+                tRCPBodyInfo.AddCustomTag("DisplayColumn", "id§dateC§time§worktime§food§note");
                 tRCPBodyInfo.AddCustomTag("StructureStyle", "id:R1:C1:3:::§dateC:R1:C4:3:::§time:R2:C1:3:::§worktime:R2:C4:1:::§food:R2:C5:2:::§note:R3:C1:6:::");
 
                 //設定多語系
@@ -1014,7 +1014,7 @@ namespace cn.hanbell.mcloud.HKGL034
             }
             catch (Exception err)
             {
-                Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, "Get_HANBELL01_01_ids_OP Error : " + err.Message.ToString());
+                Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, "GetDetail01_Employee_OpenQuery Error : " + err.Message.ToString());
             }
 
             tP2Mxml = tP2MObject.ToDucument().ToString();
