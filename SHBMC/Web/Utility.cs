@@ -116,6 +116,12 @@ namespace cn.hanbell.mcloud
             return tResponse;
         }
 
+        public static string EncodingUTF8(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return "";
+            return Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(value));
+        }
+
         #region 取得RequestAPI
         /// <summary>
         /// 取得RequestAPI
@@ -290,7 +296,7 @@ namespace cn.hanbell.mcloud
             errorMsg = string.Empty;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);   //建立連線
             request.Method = "POST";                                                //設定叫用模型
-            request.ContentType = "application/json";
+            request.ContentType = "application/json;charset=utf8";
             request.Timeout = 300000;                                               //設定timeout時間
             string tResponse = string.Empty;
 

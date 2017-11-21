@@ -1386,7 +1386,7 @@ namespace cn.hanbell.mcloud.HKGL034
                 //叫用API
                 string uri = string.Format("{0}{1}?{2}", LoadConfig.GetWebConfig("APIURI"), "efgp/hkgl034/create", LoadConfig.GetWebConfig("APIKey"));
                 string tBodyContext = Utility.JSONSerialize(DocDataClass);
-                //設定timeout時間
+
                 string tResponse = Utility.InvokeProcess(uri, tBodyContext, out tErrorMsg);
                 #endregion
 

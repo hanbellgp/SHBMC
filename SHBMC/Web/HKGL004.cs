@@ -822,11 +822,10 @@ namespace cn.hanbell.mcloud.HKGL004
 
                 #region 取得Response
                 //叫用API
-                string uri = string.Format("{0}{1}?{2}", LoadConfig.GetWebConfig("APIURI"), "efgp·/hkgl004/create", LoadConfig.GetWebConfig("APIKey"));
+                string uri = string.Format("{0}{1}?{2}", LoadConfig.GetWebConfig("APIURI"), "efgp/hkgl004/create", LoadConfig.GetWebConfig("APIKey"));
                 string tBodyContext = Utility.JSONSerialize(DocDataClass);
 
                 string tResponse = Utility.InvokeProcess(uri, tBodyContext, out tErrorMsg);
-
                 #endregion
 
                 #region 處理畫面資料
