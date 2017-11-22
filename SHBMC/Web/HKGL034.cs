@@ -76,7 +76,7 @@ namespace cn.hanbell.mcloud.HKGL034
 
                     tResponse = "{\"data\" : " + tResponse + "}";                                           //為符合class格式自己加上去的
                     Company CompanyClass = Utility.JSONDeserialize<Company>(tResponse);                        //轉class方便取用
-                    DataTable tCompanyTable = CompanyClass.GetCompanyTable(EmployDetail.company);                   //取公司別table
+                    DataTable tCompanyTable = CompanyClass.GetTable(EmployDetail.company);                   //取公司別table
                     DataRow[] tCompanyRow = tCompanyTable.Select("company = '" + EmployDetail.company + "'");       //查詢指定company
                     if (tCompanyRow.Count() > 0) tCompany = tCompanyRow[0]["company"] + "-" + tCompanyRow[0]["name"];
                     #endregion
@@ -290,7 +290,7 @@ namespace cn.hanbell.mcloud.HKGL034
 
                 #region 給值
                 //取得公司別Table
-                DataTable tCompanyTable = CompanyClass.GetCompanyTable(tSearch);
+                DataTable tCompanyTable = CompanyClass.GetTable(tSearch);
                 tCompanyTable.Columns.Add("companyC");//    Control id + C = 開窗控件要顯示的值
                 for (int i = 0; i < tCompanyTable.Rows.Count; i++) { tCompanyTable.Rows[i]["companyC"] = tCompanyTable.Rows[i]["company"] + "-" + tCompanyTable.Rows[i]["name"]; }//設定顯示的值
 
@@ -1450,7 +1450,7 @@ namespace cn.hanbell.mcloud.HKGL034
 
                         tResponse = "{\"data\" : " + tResponse + "}";                                           //為符合class格式自己加上去的
                         Company CompanyClass = Utility.JSONDeserialize<Company>(tResponse);                        //轉class方便取用
-                        DataTable tCompanyTable = CompanyClass.GetCompanyTable(EmployDetail.company);                   //取公司別table
+                        DataTable tCompanyTable = CompanyClass.GetTable(EmployDetail.company);                   //取公司別table
                         DataRow[] tCompanyRow = tCompanyTable.Select("company = '" + EmployDetail.company + "'");       //查詢指定company
                         if (tCompanyRow.Count() > 0) tCompany = tCompanyRow[0]["company"] + "-" + tCompanyRow[0]["name"];
                         #endregion

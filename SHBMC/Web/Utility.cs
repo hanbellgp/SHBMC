@@ -417,7 +417,7 @@ namespace cn.hanbell.mcloud
         }
 
         //回傳公司別table
-        public DataTable GetCompanyTable(string pSearch)
+        public DataTable GetTable(string pSearch)
         {
             Dictionary<string, string[]> companyItems = new Dictionary<string, string[]>();  //取得<欄位/值, 陣列值>
 
@@ -660,6 +660,7 @@ namespace cn.hanbell.mcloud
     }
     #endregion
 
+    #region 人員部門查詢
     public class EmployeeDepartment
     {
 
@@ -728,6 +729,7 @@ namespace cn.hanbell.mcloud
             this.users = new Users();
         }
     }
+    #endregion
 
     public class KV
     {
