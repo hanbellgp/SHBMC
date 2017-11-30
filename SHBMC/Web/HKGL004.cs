@@ -48,13 +48,14 @@ namespace cn.hanbell.mcloud.HKGL004
 
                 #region 取得畫面資料
                 string tStrUserID = DataTransferManager.GetUserMappingValue(pM2Pxml, "HANBELL");    //登入者帳號
-                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");      //请假單暫存資料
                 string tStrLanguage = DataTransferManager.GetDataValue(pM2Pxml, "Language");        //語系
+
+                string entityJSONStr = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");      //请假單暫存資料
                 #endregion
 
                 #region 處裡畫面資料
                 //檢查是否已有單據資料
-                if (string.IsNullOrEmpty(tStrDocData))//沒單據資料
+                if (string.IsNullOrEmpty(entityJSONStr))//沒單據資料
                 {
                     #region 取得預設資料
                     //設定參數
@@ -94,10 +95,10 @@ namespace cn.hanbell.mcloud.HKGL004
 
                     #region 給值
                     //設定请假單資料
-                    Entity DocDataClass = new Entity(tCompany, tDate, tUser, tDetp, formType, formTypeDesc, "1", "年休假");
-                    DocDataClass.workType = "1";
-                    DocDataClass.workTypeDesc = "常日班：80：00";
-                    string DocDataStr = Utility.JSONSerialize(DocDataClass);//Class轉成JSON
+                    Entity entityClass = new Entity(tCompany, tDate, tUser, tDetp, formType, formTypeDesc, "1", "年休假");
+                    entityClass.workType = "1";
+                    entityClass.workTypeDesc = "常日班：80：00";
+                    entityJSONStr = Utility.JSONSerialize(entityClass);//Class轉成JSON
 
                     //給定畫面欄位值
                     tRCPcompany.Value = tCompany;       //公司別
@@ -108,7 +109,7 @@ namespace cn.hanbell.mcloud.HKGL004
                     tRCPworkType.Value = "1-常日班：08：00-20：20";
                     tRCPapplyDay.Value = "0";
                     tRCPapplyHour.Value = "0";
-                    tRCPdocData.Value = DocDataStr;     //请假單暫存資料
+                    tRCPdocData.Value = entityJSONStr;     //请假單暫存資料
 
                     #endregion
                 }
@@ -116,19 +117,20 @@ namespace cn.hanbell.mcloud.HKGL004
                 {
                     #region 顯示请假單資料
                     //先將暫存資料轉成Class方便取用
-                    Entity DocDataClass = Utility.JSONDeserialize<Entity>(tStrDocData);//请假單暫存資料
+                    Entity entityClass = Utility.JSONDeserialize<Entity>(entityJSONStr);//请假單暫存資料
 
                     //設定畫面資料
-                    tRCPcompany.Value = DocDataClass.company;       //公司別
-                    tRCPapplyDate.Value = DocDataClass.applyDate;   //申請日
-                    tRCPuserid.Value = DocDataClass.applyUser;      //申請人
-                    tRCPdeptno.Value = DocDataClass.applyDept;      //申請部門
-                    tRCPdocData.Value = tStrDocData;                //请假單暫存資料
+                    tRCPcompany.Value = entityClass.company;       //公司別
+                    tRCPapplyDate.Value = entityClass.applyDate;   //申請日
+                    tRCPuserid.Value = entityClass.applyUser;      //申請人
+                    tRCPdeptno.Value = entityClass.applyDept;      //申請部門
+                    tRCPdocData.Value = entityJSONStr;                //请假單暫存資料
                     #endregion
                 }
                 #endregion
                 //處理回傳
-                tP2MObject.AddRCPControls(tRCPcompany, tRCPapplyDate, tRCPuserid, tRCPdeptno, tRCPformType, tRCPformKind, tRCPworkType, tRCPstartDate, tRCPstartTime, tRCPendDate, tRCPendTime, tRCPapplyDay, tRCPapplyHour, tRCPreason, tRCPdocData);
+                tP2MObject.AddRCPControls(tRCPcompany, tRCPapplyDate, tRCPuserid, tRCPdeptno, tRCPformType, tRCPformKind, tRCPworkType,
+                    tRCPstartDate, tRCPstartTime, tRCPendDate, tRCPendTime, tRCPapplyDay, tRCPapplyHour, tRCPreason, tRCPdocData);
             }
             catch (Exception err)
             {
@@ -150,7 +152,6 @@ namespace cn.hanbell.mcloud.HKGL004
             {
                 #region 設定參數                        
                 Dictionary<string, string> tparam = new Dictionary<string, string>();//叫用API的參數
-                string tfunctionName = string.Empty;    //叫用API的方法名稱(自定義)
                 string tErrorMsg = string.Empty;        //檢查是否錯誤
                 #endregion
 
@@ -166,12 +167,10 @@ namespace cn.hanbell.mcloud.HKGL004
                 #region 處理畫面資料
                 #region 取得公司別清單資料
                 //設定參數
-                tfunctionName = "Company";    //取得公司別
                 tparam.Clear();
-                //new CustomLogger.Logger(pM2Pxml).WriteInfo("functionName : " + tfunctionName);
 
                 //叫用服務
-                string tResponse = Utility.CallAPI(pM2Pxml, tfunctionName, tparam, out tErrorMsg);
+                string tResponse = Utility.CallAPI(pM2Pxml, "Company", tparam, out tErrorMsg);
                 if (!string.IsNullOrEmpty(tErrorMsg)) return Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, tErrorMsg);
 
                 tResponse = "{\"data\" : " + tResponse + "}";                       //為符合class格式自己加上去的
@@ -221,6 +220,7 @@ namespace cn.hanbell.mcloud.HKGL004
         }
         #endregion
 
+        #region 单据类别更新
         public string GetFormType_OnBuler(XDocument pM2Pxml)
         {
             string tP2Mxml = string.Empty;//回傳值
@@ -238,24 +238,24 @@ namespace cn.hanbell.mcloud.HKGL004
                 #endregion
 
                 #region 取得畫面資料
-                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");                      //请假單據暫存
-                string tStrformType = DataTransferManager.GetControlsValue(pM2Pxml, "formType");                    //请假類別code
-                string fStrormTypeDesc = "1".Equals(tStrformType) ? "平日请假" : "节假日前后请假";
+                string entityJSONStr = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");                      //请假單據暫存
+                string formType = DataTransferManager.GetControlsValue(pM2Pxml, "formType");                    //请假類別code
+                string formTypeDesc = "1".Equals(formType) ? "平日请假" : "节假日前后请假";
                 #endregion
 
                 #region 處理畫面資料
                 //先將暫存資料轉成Class方便取用
-                Entity DocDataClass = Utility.JSONDeserialize<Entity>(tStrDocData);//请假單暫存資料
+                Entity entityClass = Utility.JSONDeserialize<Entity>(entityJSONStr);//请假單暫存資料
 
                 //修改公司別資料
-                DocDataClass.formType = tStrformType;
-                DocDataClass.formTypeDesc = fStrormTypeDesc;
+                entityClass.formType = formType;
+                entityClass.formTypeDesc = formTypeDesc;
 
                 //请假單Class轉成JSON
-                string tDocdataJSON = Utility.JSONSerialize(DocDataClass);
+                entityJSONStr = Utility.JSONSerialize(entityClass);
 
                 //給值
-                tRCPDocData.Value = tDocdataJSON;
+                tRCPDocData.Value = entityJSONStr;
                 #endregion
 
                 //處理回傳
@@ -269,7 +269,9 @@ namespace cn.hanbell.mcloud.HKGL004
             tP2Mxml = tP2MObject.ToDucument().ToString();
             return tP2Mxml;
         }
+        #endregion
 
+        #region 申请部门开窗
         public string GetApplyDept_OpenQuery(XDocument pM2Pxml)
         {
             string tP2Mxml = string.Empty;//回傳值
@@ -362,31 +364,30 @@ namespace cn.hanbell.mcloud.HKGL004
             {
                 #region 設定參數                        
                 Dictionary<string, string> tparam = new Dictionary<string, string>();//叫用API的參數
-                string tfunctionName = string.Empty;    //叫用API的方法名稱(自定義)
                 string tErrorMsg = string.Empty;        //檢查是否錯誤
                 #endregion
 
                 #region 設定控件
-                RCPControl tRCPDocData = new RCPControl("DocData", null, null, null);       //加班單據隱藏欄位
+                RCPControl tRCPDocData = new RCPControl("DocData", null, null, null);       //请假單據隱藏欄位
                 #endregion
 
                 #region 取得畫面資料
-                string tStrdeptno = DataTransferManager.GetControlsValue(pM2Pxml, "applyDeptC");    //申請部門(C是取外顯值)
-                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");  //加班單據暫存
+                string applyDeptC = DataTransferManager.GetControlsValue(pM2Pxml, "applyDeptC");    //申請部門(C是取外顯值)
+                string entityJSONStr = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");  //请假單據暫存
                 #endregion
 
                 #region 處理畫面資料
                 //先將暫存資料轉成Class方便取用
-                Entity DocDataClass = Utility.JSONDeserialize<Entity>(tStrDocData);//加班單暫存資料
+                Entity entityClass = Utility.JSONDeserialize<Entity>(entityJSONStr);//请假單暫存資料
 
                 //修改部門資料
-                DocDataClass.applyDept = tStrdeptno;
+                entityClass.applyDept = applyDeptC;
 
-                //加班單Class轉成JSON
-                string tDocdataJSON = Utility.JSONSerialize(DocDataClass);
+                //请假單Class轉成JSON
+                entityJSONStr = Utility.JSONSerialize(entityClass);
 
                 //給值
-                tRCPDocData.Value = tDocdataJSON;
+                tRCPDocData.Value = entityJSONStr;
                 #endregion
 
                 //處理回傳
@@ -400,6 +401,7 @@ namespace cn.hanbell.mcloud.HKGL004
             tP2Mxml = tP2MObject.ToDucument().ToString();
             return tP2Mxml;
         }
+        #endregion
 
         #region 请假类别開窗
         public string GetLeaveKind_OpenQuery(XDocument pM2Pxml)
@@ -440,7 +442,7 @@ namespace cn.hanbell.mcloud.HKGL004
                 #region 給值
                 //取得Table
                 DataTable table = leaveKind.GetDataTable(tSearch, new string[] { "formKind", "formKindDesc" });
-                table.Columns.Add("formKindC");//    Control applyUser + C = 開窗控件要顯示的值
+                table.Columns.Add("formKindC");//    Control ID + C = 開窗控件要顯示的值
                 for (int i = 0; i < table.Rows.Count; i++) { table.Rows[i]["formKindC"] = table.Rows[i]["formKind"] + "-" + table.Rows[i]["formKindDesc"]; }//設定顯示的值
 
                 //設定公司別清單資料(含分頁)
@@ -478,7 +480,6 @@ namespace cn.hanbell.mcloud.HKGL004
             tP2Mxml = tP2MObject.ToDucument().ToString();
             return tP2Mxml;
         }
-        #endregion
 
         public string GetLeaveKind_OnBlur(XDocument pM2Pxml)
         {
@@ -489,7 +490,6 @@ namespace cn.hanbell.mcloud.HKGL004
             {
                 #region 設定參數                        
                 Dictionary<string, string> tparam = new Dictionary<string, string>();//叫用API的參數
-                string tfunctionName = string.Empty;    //叫用API的方法名稱(自定義)
                 string tErrorMsg = string.Empty;        //檢查是否錯誤
                 #endregion
 
@@ -498,24 +498,24 @@ namespace cn.hanbell.mcloud.HKGL004
                 #endregion
 
                 #region 取得畫面資料
-                string tFormKind = DataTransferManager.GetControlsValue(pM2Pxml, "formKind");
-                string tFormKindDesc = DataTransferManager.GetControlsValue(pM2Pxml, "formKindC");
-                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");  //请假單據暫存
+                string formKind = DataTransferManager.GetControlsValue(pM2Pxml, "formKind");
+                string formKindDesc = DataTransferManager.GetControlsValue(pM2Pxml, "formKindC");
+                string entityJSONStr = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");  //请假單據暫存
                 #endregion
 
                 #region 處理畫面資料
                 //先將暫存資料轉成Class方便取用
-                Entity DocDataClass = Utility.JSONDeserialize<Entity>(tStrDocData);//请假單暫存資料
+                Entity entityClass = Utility.JSONDeserialize<Entity>(entityJSONStr);//请假單暫存資料
 
                 //修改公司別資料
-                DocDataClass.formKind = tFormKind;
-                DocDataClass.formKindDesc = tFormKindDesc;
+                entityClass.formKind = formKind;
+                entityClass.formKindDesc = formKindDesc;
 
                 //请假單Class轉成JSON
-                string tDocdataJSON = Utility.JSONSerialize(DocDataClass);
+                entityJSONStr = Utility.JSONSerialize(entityClass);
 
                 //給值
-                tRCPDocData.Value = tDocdataJSON;
+                tRCPDocData.Value = entityJSONStr;
                 #endregion
 
                 //處理回傳
@@ -529,7 +529,9 @@ namespace cn.hanbell.mcloud.HKGL004
             tP2Mxml = tP2MObject.ToDucument().ToString();
             return tP2Mxml;
         }
+        #endregion
 
+        #region 工作班别开窗
         public string GetWorkType_OpenQuery(XDocument pM2Pxml)
         {
             string tP2Mxml = string.Empty;//回傳值
@@ -538,7 +540,6 @@ namespace cn.hanbell.mcloud.HKGL004
             {
 
                 Dictionary<string, string> tparam = new Dictionary<string, string>();//叫用API的參數
-                string tfunctionName = string.Empty;    //叫用API的方法名稱(自定義)
                 string tErrorMsg = string.Empty;        //檢查是否錯誤
 
                 #region 設定控件
@@ -553,9 +554,7 @@ namespace cn.hanbell.mcloud.HKGL004
                 #region 處理畫面資料
                 #region 取得公司別清單資料
                 //設定參數
-                tfunctionName = "WorkType";    //取得公司別
                 tparam.Clear();
-                //new CustomLogger.Logger(pM2Pxml).WriteInfo("functionName : " + tfunctionName);
 
                 //叫用服務
                 string tResponse = Utility.CallAPI(pM2Pxml, "WorkType", tparam, out tErrorMsg);
@@ -568,7 +567,7 @@ namespace cn.hanbell.mcloud.HKGL004
                 #region 給值
                 //取得公司別Table
                 DataTable table = workType.GetDataTable(tSearch, new string[] { "workType", "workTypeDesc" });
-                table.Columns.Add("workTypeC");//    Control applyUser + C = 開窗控件要顯示的值
+                table.Columns.Add("workTypeC");//    Control ID + C = 開窗控件要顯示的值
                 for (int i = 0; i < table.Rows.Count; i++) { table.Rows[i]["workTypeC"] = table.Rows[i]["workType"] + "-" + table.Rows[i]["workTypeDesc"]; }//設定顯示的值
 
                 //設定公司別清單資料(含分頁)
@@ -623,24 +622,24 @@ namespace cn.hanbell.mcloud.HKGL004
                 #endregion
 
                 #region 取得畫面資料
-                string tWorkType = DataTransferManager.GetControlsValue(pM2Pxml, "workType");
-                string tWorkTypeDesc = DataTransferManager.GetControlsValue(pM2Pxml, "workTypeC");
-                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");  //请假單據暫存
+                string workType = DataTransferManager.GetControlsValue(pM2Pxml, "workType");
+                string workTypeDesc = DataTransferManager.GetControlsValue(pM2Pxml, "workTypeC");
+                string entityJSONStr = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");  //请假單據暫存
                 #endregion
 
                 #region 處理畫面資料
                 //先將暫存資料轉成Class方便取用
-                Entity DocDataClass = Utility.JSONDeserialize<Entity>(tStrDocData);//请假單暫存資料
+                Entity entityClass = Utility.JSONDeserialize<Entity>(entityJSONStr);//请假單暫存資料
 
                 //修改公司別資料
-                DocDataClass.workType = tWorkType;
-                DocDataClass.workTypeDesc = tWorkTypeDesc;
+                entityClass.workType = workType;
+                entityClass.workTypeDesc = workTypeDesc;
 
                 //请假單Class轉成JSON
-                string tDocdataJSON = Utility.JSONSerialize(DocDataClass);
+                entityJSONStr = Utility.JSONSerialize(entityClass);
 
                 //給值
-                tRCPDocData.Value = tDocdataJSON;
+                tRCPDocData.Value = entityJSONStr;
                 #endregion
 
                 //處理回傳
@@ -654,8 +653,9 @@ namespace cn.hanbell.mcloud.HKGL004
             tP2Mxml = tP2MObject.ToDucument().ToString();
             return tP2Mxml;
         }
+        #endregion
 
-        #region 发送到服务器
+        #region 发起流程
         public string InvokeProcess(XDocument pM2Pxml)
         {
             string tP2Mxml = string.Empty;//回傳值
@@ -857,7 +857,6 @@ namespace cn.hanbell.mcloud.HKGL004
 
                         tP2MObject.Message = tMsg + rs.msg;
                         tP2MObject.Result = "false";
-
 
                         //設定请假單資料
                         Entity newEntity = new Entity(company, "", tStrUserID, applyDept, formType, formTypeDesc, "1", "年休假");
