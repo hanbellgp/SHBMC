@@ -515,108 +515,6 @@ namespace cn.hanbell.mcloud.HKGL034
         }
         #endregion
 
-        #region 刪除單身
-        public string GetDetail01_Del(XDocument pM2Pxml)
-        {
-            string tP2Mxml = string.Empty;//回傳值
-            ProductToMCloudBuilder tP2MObject = new ProductToMCloudBuilder(null, null, null); //參數:要顯示的訊息、結果、Title//建構p2m
-
-            try
-            {
-                #region 設定參數
-                string tErrorMsg = string.Empty;        //檢查是否錯誤
-                #endregion
-
-                #region 設定控件
-                RCPControl tRCPcompany = new RCPControl("company", "true", null, null);     //公司別
-                RCPControl tRCPdeptno = new RCPControl("deptno", "true", null, null);       //申請部門
-                RCPControl tRCPDocData = new RCPControl("DocData", null, null, null);       //加班單據隱藏欄位
-                RCPControl tRCPBodyInfo = new RCPControl("BodyInfo", "true", null, null);   //申請單單身
-                #endregion
-
-                #region 取得畫面資料
-                string tStrBodyInfo = DataTransferManager.GetControlsValue(pM2Pxml, "BodyInfo");    //加班單單身勾選的資料
-                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");      //加班單據暫存
-                string tSearch = DataTransferManager.GetControlsValue(pM2Pxml, "SearchCondition");  //單身搜尋條件
-                #endregion
-
-                if (!string.IsNullOrEmpty(tStrBodyInfo))
-                {
-                    #region 處理畫面資料
-                    //先將暫存資料轉成Class方便取用
-                    Entity DocDataClass = Utility.JSONDeserialize<Entity>(tStrDocData);//加班單暫存資料
-
-                    //刪除單身資料
-                    foreach (var item in tStrBodyInfo.Split('§'))
-                    {
-                        foreach (var bodyitem in DocDataClass.body)
-                        {
-                            if (item.Equals(bodyitem.item))
-                            {
-                                DocDataClass.body.Remove(bodyitem);
-                                break;
-                            }
-                        }
-                    }
-
-                    #region 顯示加班單資料                    
-                    tRCPDocData.Value = Utility.JSONSerialize(DocDataClass);                    //加班單暫存資料//加班單Class轉成JSON
-
-                    //檢查是否有單身資料
-                    if (!(DocDataClass.body.Count > 0))//沒有單身資料
-                    {
-                        //設定單頭欄位屬性
-                        tRCPcompany.Enable = "true";   //公司別
-                        tRCPdeptno.Enable = "true";    //申請部門
-                    }
-                    else//有單身資料
-                    {
-                        //設定單頭屬性
-                        tRCPcompany.Enable = "false";   //公司別
-                        tRCPdeptno.Enable = "false";    //申請部門
-                    }
-
-                    //整理Table轉成符合顯示的格式
-                    DataTable tBodyTable = DocDataClass.GetBodyDataTable(tSearch);
-                    tBodyTable.Columns.Add("dateC");//日期,有加/
-                    tBodyTable.Columns.Add("time"); //加班時間
-                    tBodyTable.Columns.Add("food"); //供餐
-                    for (int i = 0; i < tBodyTable.Rows.Count; i++)
-                    {
-                        string tstarttime = tBodyTable.Rows[i]["starttime"].ToString().Insert(2, ":");
-                        string tdate = tBodyTable.Rows[i]["date"].ToString().Insert(4, "/").Insert(7, "/");
-                        string tendtime = tBodyTable.Rows[i]["endtime"].ToString().Insert(2, ":");
-                        string tlunch = tBodyTable.Rows[i]["lunch"].ToString();
-                        string tdinner = tBodyTable.Rows[i]["dinner"].ToString();
-
-                        tBodyTable.Rows[i]["dateC"] = tdate;
-                        tBodyTable.Rows[i]["time"] = tstarttime + "-" + tendtime;
-                        tBodyTable.Rows[i]["food"] = ("N".Equals(tlunch) && "N".Equals(tdinner)) ? "無" :
-                                                     ("Y".Equals(tlunch) && "Y".Equals(tdinner)) ? "午、晚餐" :
-                                                     ("Y".Equals(tlunch) && "N".Equals(tdinner)) ? "午餐" : "晚餐";
-
-                    }
-
-                    //設定單身資料(含分頁)
-                    Utility.SetRCPControlPage(pM2Pxml, tBodyTable, ref tRCPBodyInfo);
-                    #endregion
-
-                    #endregion
-
-                    //處理回傳
-                    tP2MObject.AddRCPControls(tRCPcompany, tRCPdeptno, tRCPDocData, tRCPBodyInfo);
-                }
-            }
-            catch (Exception err)
-            {
-                Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, "GetDetail01_Del Error : " + err.Message.ToString());
-            }
-
-            tP2Mxml = tP2MObject.ToDucument().ToString();
-            return tP2Mxml;
-        }
-        #endregion
-
         #region 加班明細 頁面初使化
         public string GetDetail01_BasicSetting(XDocument pM2Pxml)
         {
@@ -1271,7 +1169,7 @@ namespace cn.hanbell.mcloud.HKGL034
             }
             catch (Exception err)
             {
-                Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, "GetDetail01_Operate Error : " + err.Message.ToString());
+                Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, "GetBizDetail_Operate Error : " + err.Message.ToString());
             }
 
             tP2Mxml = tP2MObject.ToDucument().ToString();
@@ -1279,7 +1177,109 @@ namespace cn.hanbell.mcloud.HKGL034
         }
         #endregion
 
-        #region 立單
+        #region 刪除單身
+        public string GetDetail01_Del(XDocument pM2Pxml)
+        {
+            string tP2Mxml = string.Empty;//回傳值
+            ProductToMCloudBuilder tP2MObject = new ProductToMCloudBuilder(null, null, null); //參數:要顯示的訊息、結果、Title//建構p2m
+
+            try
+            {
+                #region 設定參數
+                string tErrorMsg = string.Empty;        //檢查是否錯誤
+                #endregion
+
+                #region 設定控件
+                RCPControl tRCPcompany = new RCPControl("company", "true", null, null);     //公司別
+                RCPControl tRCPdeptno = new RCPControl("deptno", "true", null, null);       //申請部門
+                RCPControl tRCPDocData = new RCPControl("DocData", null, null, null);       //加班單據隱藏欄位
+                RCPControl tRCPBodyInfo = new RCPControl("BodyInfo", "true", null, null);   //申請單單身
+                #endregion
+
+                #region 取得畫面資料
+                string tStrBodyInfo = DataTransferManager.GetControlsValue(pM2Pxml, "BodyInfo");    //加班單單身勾選的資料
+                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");      //加班單據暫存
+                string tSearch = DataTransferManager.GetControlsValue(pM2Pxml, "SearchCondition");  //單身搜尋條件
+                #endregion
+
+                if (!string.IsNullOrEmpty(tStrBodyInfo))
+                {
+                    #region 處理畫面資料
+                    //先將暫存資料轉成Class方便取用
+                    Entity DocDataClass = Utility.JSONDeserialize<Entity>(tStrDocData);//加班單暫存資料
+
+                    //刪除單身資料
+                    foreach (var item in tStrBodyInfo.Split('§'))
+                    {
+                        foreach (var bodyitem in DocDataClass.body)
+                        {
+                            if (item.Equals(bodyitem.item))
+                            {
+                                DocDataClass.body.Remove(bodyitem);
+                                break;
+                            }
+                        }
+                    }
+
+                    #region 顯示加班單資料                    
+                    tRCPDocData.Value = Utility.JSONSerialize(DocDataClass);                    //加班單暫存資料//加班單Class轉成JSON
+
+                    //檢查是否有單身資料
+                    if (!(DocDataClass.body.Count > 0))//沒有單身資料
+                    {
+                        //設定單頭欄位屬性
+                        tRCPcompany.Enable = "true";   //公司別
+                        tRCPdeptno.Enable = "true";    //申請部門
+                    }
+                    else//有單身資料
+                    {
+                        //設定單頭屬性
+                        tRCPcompany.Enable = "false";   //公司別
+                        tRCPdeptno.Enable = "false";    //申請部門
+                    }
+
+                    //整理Table轉成符合顯示的格式
+                    DataTable tBodyTable = DocDataClass.GetBodyDataTable(tSearch);
+                    tBodyTable.Columns.Add("dateC");//日期,有加/
+                    tBodyTable.Columns.Add("time"); //加班時間
+                    tBodyTable.Columns.Add("food"); //供餐
+                    for (int i = 0; i < tBodyTable.Rows.Count; i++)
+                    {
+                        string tstarttime = tBodyTable.Rows[i]["starttime"].ToString().Insert(2, ":");
+                        string tdate = tBodyTable.Rows[i]["date"].ToString().Insert(4, "/").Insert(7, "/");
+                        string tendtime = tBodyTable.Rows[i]["endtime"].ToString().Insert(2, ":");
+                        string tlunch = tBodyTable.Rows[i]["lunch"].ToString();
+                        string tdinner = tBodyTable.Rows[i]["dinner"].ToString();
+
+                        tBodyTable.Rows[i]["dateC"] = tdate;
+                        tBodyTable.Rows[i]["time"] = tstarttime + "-" + tendtime;
+                        tBodyTable.Rows[i]["food"] = ("N".Equals(tlunch) && "N".Equals(tdinner)) ? "無" :
+                                                     ("Y".Equals(tlunch) && "Y".Equals(tdinner)) ? "午、晚餐" :
+                                                     ("Y".Equals(tlunch) && "N".Equals(tdinner)) ? "午餐" : "晚餐";
+
+                    }
+
+                    //設定單身資料(含分頁)
+                    Utility.SetRCPControlPage(pM2Pxml, tBodyTable, ref tRCPBodyInfo);
+                    #endregion
+
+                    #endregion
+
+                    //處理回傳
+                    tP2MObject.AddRCPControls(tRCPcompany, tRCPdeptno, tRCPDocData, tRCPBodyInfo);
+                }
+            }
+            catch (Exception err)
+            {
+                Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, "GetDetail01_Del Error : " + err.Message.ToString());
+            }
+
+            tP2Mxml = tP2MObject.ToDucument().ToString();
+            return tP2Mxml;
+        }
+        #endregion
+
+        #region 发起流程
         public string InvokeProcess(XDocument pM2Pxml)
         {
             string tP2Mxml = string.Empty;//回傳值
@@ -1303,19 +1303,20 @@ namespace cn.hanbell.mcloud.HKGL034
                 #endregion
 
                 #region 取得畫面資料
-                string tStrcompany = DataTransferManager.GetControlsValue(pM2Pxml, "company");      //公司別
-                string tStrdeptno = DataTransferManager.GetControlsValue(pM2Pxml, "deptno");        //申請部門
                 string tStrUserID = DataTransferManager.GetUserMappingValue(pM2Pxml, "HANBELL");    //登入者帳號
-                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");      //加班單據暫存
                 string tStrLanguage = DataTransferManager.GetDataValue(pM2Pxml, "Language");        //語系
 
+                string companyC = DataTransferManager.GetControlsValue(pM2Pxml, "company");      //公司別
+                string deptnoC = DataTransferManager.GetControlsValue(pM2Pxml, "deptno");        //申請部門
+                string entityJSONStr = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");      //加班單據暫存
+
                 //先將暫存資料轉成Class方便取用
-                Entity DocDataClass = Utility.JSONDeserialize<Entity>(tStrDocData);                //加班單暫存資料
+                Entity entityClass = Utility.JSONDeserialize<Entity>(entityJSONStr);                //加班單暫存資料
                 #endregion
 
                 #region 檢查錯誤
                 //檢查公司別必填
-                if (string.IsNullOrEmpty(tStrcompany))
+                if (string.IsNullOrEmpty(companyC))
                 {
                     //設定多語系
                     if ("Lang01".Equals(tStrLanguage))
@@ -1331,7 +1332,7 @@ namespace cn.hanbell.mcloud.HKGL034
                 }
 
                 //檢查申請部門必填
-                if (string.IsNullOrEmpty(tStrdeptno))
+                if (string.IsNullOrEmpty(deptnoC))
                 {
                     //設定多語系
                     if ("Lang01".Equals(tStrLanguage))
@@ -1347,7 +1348,7 @@ namespace cn.hanbell.mcloud.HKGL034
                 }
 
                 //檢查單身是否存在
-                if (string.IsNullOrEmpty(tStrDocData) || DocDataClass.body.Count <= 0)
+                if (string.IsNullOrEmpty(entityJSONStr) || entityClass.body.Count <= 0)
                 {
                     //設定多語系
                     if ("Lang01".Equals(tStrLanguage))
@@ -1367,12 +1368,12 @@ namespace cn.hanbell.mcloud.HKGL034
 
                 #region 整理Request
                 //單頭
-                DocDataClass.head.company = DocDataClass.head.company.Split('-')[0];    //公司別只取id
-                DocDataClass.head.id = DocDataClass.head.id.Split('-')[0];              //申請人只取id
-                DocDataClass.head.deptno = DocDataClass.head.deptno.Split('-')[0];      //申請部門只取id
+                entityClass.head.company = entityClass.head.company.Split('-')[0];    //公司別只取id
+                entityClass.head.id = entityClass.head.id.Split('-')[0];              //申請人只取id
+                entityClass.head.deptno = entityClass.head.deptno.Split('-')[0];      //申請部門只取id
 
                 //單身
-                foreach (var bodyitem in DocDataClass.body)
+                foreach (var bodyitem in entityClass.body)
                 {
                     bodyitem.deptno = bodyitem.deptno.Split('-')[0];                //加班部門只取id
                     bodyitem.id = bodyitem.id.Split('-')[0];                        //加班人員只取id
@@ -1385,9 +1386,9 @@ namespace cn.hanbell.mcloud.HKGL034
                 #region 取得Response
                 //叫用API
                 string uri = string.Format("{0}{1}?{2}", LoadConfig.GetWebConfig("APIURI"), "efgp/hkgl034/create", LoadConfig.GetWebConfig("APIKey"));
-                string tBodyContext = Utility.JSONSerialize(DocDataClass);
+                entityJSONStr = Utility.JSONSerialize(entityClass);
 
-                string tResponse = Utility.InvokeProcess(uri, tBodyContext, out tErrorMsg);
+                string tResponse = Utility.InvokeProcess(uri, entityJSONStr, out tErrorMsg);
                 #endregion
 
                 #region 處理畫面資料
@@ -1398,10 +1399,10 @@ namespace cn.hanbell.mcloud.HKGL034
                 else
                 {
                     //轉成class 方便取用
-                    ResponseState tCreateDocResultClass = Utility.JSONDeserialize<ResponseState>(tResponse);
+                    ResponseState responseState = Utility.JSONDeserialize<ResponseState>(tResponse);
 
                     //判斷回傳
-                    if ("200".Equals(tCreateDocResultClass.code))
+                    if ("200".Equals(responseState.code))
                     {
                         string tMsg = string.Empty;
 
@@ -1417,7 +1418,7 @@ namespace cn.hanbell.mcloud.HKGL034
                             tMsg = "请假单建立成功，单号 :\r\n";
                         }
 
-                        tP2MObject.Message = tMsg + tCreateDocResultClass.msg;
+                        tP2MObject.Message = tMsg + responseState.msg;
                         tP2MObject.Result = "false";
 
                         #region 取得預設資料
@@ -1459,16 +1460,16 @@ namespace cn.hanbell.mcloud.HKGL034
 
                         #region 給值
                         //設定加班單資料
-                        DocDataClass = new Entity();
-                        DocDataClass.head = new HeadData(tCompany, tDate, tUser, tDetp, tStrformType, fStrormTypeDesc);
-                        string DocDataStr = Utility.JSONSerialize(DocDataClass);//Class轉成JSON
+                        entityClass = new Entity();
+                        entityClass.head = new HeadData(tCompany, tDate, tUser, tDetp, tStrformType, fStrormTypeDesc);
+                        string JSONStr = Utility.JSONSerialize(entityClass);//Class轉成JSON
 
                         //給定畫面欄位值
                         tRCPcompany.Value = tCompany;       //公司別
                         tRCPdate.Value = tDate;             //申請日
                         tRCPuserid.Value = tUser;           //申請人
                         tRCPdeptno.Value = tDetp;           //申請部門
-                        tRCPDocData.Value = DocDataStr;     //加班單暫存資料
+                        tRCPDocData.Value = JSONStr;     //加班單暫存資料
                         tRCPBodyInfo.Table = new DataTable();//加班單單身
                         #endregion
 
@@ -1477,7 +1478,7 @@ namespace cn.hanbell.mcloud.HKGL034
                     }
                     else
                     {
-                        tP2MObject.Message = "請假單建立失敗，說明 :\r\n" + tCreateDocResultClass.msg;
+                        tP2MObject.Message = "請假單建立失敗，說明 :\r\n" + responseState.msg;
                         tP2MObject.Result = "false";
                     }
                 }

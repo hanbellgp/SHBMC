@@ -237,11 +237,23 @@ namespace cn.hanbell.mcloud
                                 );
                         break;
                     #endregion
+
+                    #region 请假类别查詢
                     case "LeaveKind":
                         api = "efgp/leavekind";
                         break;
-                    case "WorkType":
-                        api = "efgp/worktype";
+                    #endregion
+
+                    case "BizKind":
+                        api = "efgp/bizkind";
+                        break;
+
+                    case "BizVehicle":
+                        api = "efgp/bizvehicle";
+                        break;
+
+                    case "BizDestination":
+                        api = "efgp/bizdestination";
                         break;
 
                 }
@@ -253,7 +265,7 @@ namespace cn.hanbell.mcloud
                 }
                 else
                 {
-                    errorMsg = "找不到functionName";
+                    errorMsg = "找不到WebAPI URI";
                 }
             }
             catch (Exception err)

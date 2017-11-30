@@ -30,9 +30,6 @@ namespace cn.hanbell.mcloud
             String tP2Mxml = String.Empty;
             XDocument tM2PXDoc = XDocument.Parse(pM2Pxml);
 
-            //回傳P to M的XML
-            XDocument tResultXDoc = new XDocument();
-
             try
             {
                 //取得ProgramID
@@ -44,9 +41,8 @@ namespace cn.hanbell.mcloud
 
                 switch (tProgramID)
                 {
-                    #region 请假单
+                    #region 请假申請
                     case "HKGL004":
-
                         switch (tServiceName)
                         {
                             case "BasicSetting":
@@ -80,15 +76,10 @@ namespace cn.hanbell.mcloud
                                 tP2Mxml = new HKGL004.HKGL004().InvokeProcess(tM2PXDoc);
                                 break;
                         }
-                        ProductToMCloudBuilder tProductToMCloudBuilder = new ProductToMCloudBuilder(null, "TRUE", "请假申请");
-                        //將Status載入至tProductToMCloudBuilder
-                        tProductToMCloudBuilder.AddStatus("enableall");
-                        //將tProductToMCloudBuilder轉成XML
-                        tResultXDoc = tProductToMCloudBuilder.ToDucument();
                         break;
                     #endregion
 
-                    #region 加班申請單
+                    #region 加班申請
                     case "HANBELL01":   //加班申請單
                         switch (tServiceName)
                         {
@@ -153,8 +144,78 @@ namespace cn.hanbell.mcloud
                                 break;
                         }
                         break;
-                        #endregion
+                    #endregion
+
+                    #region 出差申請
+                    case "HZGL004":
+                        switch (tServiceName)
+                        {
+                            case "BasicSetting":
+                                tP2Mxml = new HZGL004.HZGL004().GetBasicSetting(tM2PXDoc);
+                                break;
+                            case "company_OpenQuery":
+                                tP2Mxml = new HZGL004.HZGL004().GetCompany_OpenQuery(tM2PXDoc);
+                                break;
+                            case "company_OnBlur":
+                                tP2Mxml = new HZGL004.HZGL004().GetCompany_OnBlur(tM2PXDoc);
+                                break;
+                            case "applyDept_OpenQuery":
+                                tP2Mxml = new HZGL004.HZGL004().GetApplyDept_OpenQuery(tM2PXDoc);
+                                break;
+                            case "applyDept_OnBlur":
+                                tP2Mxml = new HZGL004.HZGL004().GetApplyDept_OnBlur(tM2PXDoc);
+                                break;
+                            case "formType_OpenQuery":
+                                tP2Mxml = new HZGL004.HZGL004().GetFormType_OpenQuery(tM2PXDoc);
+                                break;
+                            case "formType_OnBlur":
+                                tP2Mxml = new HZGL004.HZGL004().GetFormType_OnBuler(tM2PXDoc);
+                                break;
+                            case "vehicle_OpenQuery":
+                                tP2Mxml = new HZGL004.HZGL004().GetBizVehicle_OpenQuery(tM2PXDoc);
+                                break;
+                            case "vehicle_OnBlur":
+                                tP2Mxml = new HZGL004.HZGL004().GetBizVehicle_OnBlur(tM2PXDoc);
+                                break;
+                            case "destination_OpenQuery":
+                                tP2Mxml = new HZGL004.HZGL004().GetBizDestination_OpenQuery(tM2PXDoc);
+                                break;
+                            case "destination_OnBlur":
+                                tP2Mxml = new HZGL004.HZGL004().GetBizDestination_OnBlur(tM2PXDoc);
+                                break;
+                            case "startDate_OnBlur":
+                                tP2Mxml = new HZGL004.HZGL004().GetStartDate_OnBlur(tM2PXDoc);
+                                break;
+                            case "endDate_OnBlur":
+                                tP2Mxml = new HZGL004.HZGL004().GetEndDate_OnBlur(tM2PXDoc);
+                                break;
+                            case "days_OnBlur":
+                                tP2Mxml = new HZGL004.HZGL004().GetDays_OnBlur(tM2PXDoc);
+                                break;
+                            case "delBizDetail":
+                                tP2Mxml = new HZGL004.HZGL004().GetBizDetail_Del(tM2PXDoc);
+                                break;
+                            case "post":
+                                tP2Mxml = new HZGL004.HZGL004().InvokeProcess(tM2PXDoc);
+                                break;
+                        }
+                        break;
+
+                    case "HZGL004_01":
+                        switch (tServiceName)
+                        {
+                            case "BasicSetting":        //頁面初始化
+                                tP2Mxml = new HZGL004.HZGL004().GetBizDetail_BasicSetting(tM2PXDoc);
+                                break;
+                            case "addBizDetail":             //新增單身
+                            case "editBizDetail":            //修改明細
+                                tP2Mxml = new HZGL004.HZGL004().GetBizDetail_Operate(tM2PXDoc);
+                                break;
+                        }
+                        break;
+                   #endregion
                 }
+
             }
             catch (Exception ex)
             {
