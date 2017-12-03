@@ -701,10 +701,11 @@ namespace cn.hanbell.mcloud.HKGL004
                 string leaveHour = DataTransferManager.GetControlsValue(pM2Pxml, "applyHour");
                 //string leaveMinute = DataTransferManager.GetControlsValue(pM2Pxml, "applyMinute");
                 string reason = DataTransferManager.GetControlsValue(pM2Pxml, "reason");
-                string docData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");      //请假單據暫存
+
+                string entityJSONStr = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");      //请假單據暫存
 
                 //先將暫存資料轉成Class方便取用
-                Entity DocDataClass = Utility.JSONDeserialize<Entity>(docData);                //请假單暫存資料
+                Entity entityClass = Utility.JSONDeserialize<Entity>(entityJSONStr);                //请假單暫存資料
                 #endregion
 
                 #region 檢查錯誤
@@ -773,7 +774,7 @@ namespace cn.hanbell.mcloud.HKGL004
                 }
 
                 //檢查單身是否存在
-                if (string.IsNullOrEmpty(docData))
+                if (string.IsNullOrEmpty(entityJSONStr))
                 {
                     //設定多語系
                     if ("Lang01".Equals(tStrLanguage))
@@ -808,24 +809,24 @@ namespace cn.hanbell.mcloud.HKGL004
                 #endregion
 
                 //單頭
-                DocDataClass.company = DocDataClass.company.Split('-')[0];    //公司別只取id
-                DocDataClass.applyUser = DocDataClass.applyUser.Split('-')[0];              //申請人只取id
-                DocDataClass.applyDept = DocDataClass.applyDept.Split('-')[0];
-                DocDataClass.startDate = startDate.Insert(4, "-").Insert(7, "-"); ;
-                DocDataClass.startTime = startTime.Insert(2, ":");
-                DocDataClass.endDate = endDate.Insert(4, "-").Insert(7, "-"); ;
-                DocDataClass.endTime = endTime.Insert(2, ":");
-                DocDataClass.leaveDay = Double.Parse(leaveDay);
-                DocDataClass.leaveHour = Double.Parse(leaveHour);
-                DocDataClass.leaveMinute = 0d;
-                DocDataClass.reason = reason;
+                entityClass.company = entityClass.company.Split('-')[0];    //公司別只取id
+                entityClass.applyUser = entityClass.applyUser.Split('-')[0];              //申請人只取id
+                entityClass.applyDept = entityClass.applyDept.Split('-')[0];
+                entityClass.startDate = startDate.Insert(4, "-").Insert(7, "-"); ;
+                entityClass.startTime = startTime.Insert(2, ":");
+                entityClass.endDate = endDate.Insert(4, "-").Insert(7, "-"); ;
+                entityClass.endTime = endTime.Insert(2, ":");
+                entityClass.leaveDay = Double.Parse(leaveDay);
+                entityClass.leaveHour = Double.Parse(leaveHour);
+                entityClass.leaveMinute = 0d;
+                entityClass.reason = reason;
 
                 #region 取得Response
                 //叫用API
                 string uri = string.Format("{0}{1}?{2}", LoadConfig.GetWebConfig("APIURI"), "efgp/hkgl004/create", LoadConfig.GetWebConfig("APIKey"));
-                string tBodyContext = Utility.JSONSerialize(DocDataClass);
+                entityJSONStr = Utility.JSONSerialize(entityClass);
 
-                string tResponse = Utility.InvokeProcess(uri, tBodyContext, out tErrorMsg);
+                string tResponse = Utility.InvokeProcess(uri, entityJSONStr, out tErrorMsg);
                 #endregion
 
                 #region 處理畫面資料

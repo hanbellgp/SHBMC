@@ -1586,15 +1586,28 @@ namespace cn.hanbell.mcloud.HZGL004
                     tErrorMsg += "出差天数错误\r\n";
                 }
 
-                if("7".Equals(entityClass.formType) && string.IsNullOrEmpty(otherType))
+                if ("7".Equals(entityClass.formType))
                 {
-                    tErrorMsg += "其他性质必填\r\n";
+                    if (string.IsNullOrEmpty(otherType))
+                    {
+                        tErrorMsg += "其他性质必填\r\n";
+                    }
+                    else
+                    {
+                        entityClass.otherType = otherType;
+                    }
                 }
-                if ("6".Equals(entityClass.vehicle) && string.IsNullOrEmpty(otherVehicle))
+                if ("6".Equals(entityClass.vehicle))
                 {
-                    tErrorMsg += "其他工具必填\r\n";
+                    if (string.IsNullOrEmpty(otherVehicle))
+                    {
+                        tErrorMsg += "其他工具必填\r\n";
+                    }
+                    else
+                    {
+                        entityClass.otherVehicle = otherVehicle;
+                    }
                 }
-
                 //檢查單身是否存在
                 if (string.IsNullOrEmpty(entityJSONStr) || entityClass.detailList.Count <= 0)
                 {
