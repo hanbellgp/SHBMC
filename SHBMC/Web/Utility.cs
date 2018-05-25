@@ -256,6 +256,52 @@ namespace cn.hanbell.mcloud
                         api = "efgp/bizdestination";
                         break;
 
+                    #region 借支性质查詢
+                    case "LoanProperty":
+                        api = "efgp/loanproperty";
+                        break;
+                    #endregion
+
+                    #region 币别查詢
+                    case "Coin":
+                        api = "erp/coin";
+                        break;
+                    #endregion
+
+                    #region 预算科目查詢
+                    case "PreAccno":
+                        //api = "erp/budgetacc";
+                        //http://localhost:8480/Hanbell-JRS/api/erp/budgetcenteracc/f;budgetcenteraccdetailPK.facno=C;budgetcenteraccdetailPK.centerid=13000/s/0/1000?appid=1505278334853&token=0ec858293fccfad55575e26b0ce31177
+                        param.Add("condition",
+                            (param.ContainsKey("company") ? string.Format(";budgetcenteraccdetailPK.facno={0}", param["company"]) : "") +                        //篩選條件:按代号(applyUser=XXXX)
+                            (param.ContainsKey("centerid") ? string.Format(";budgetcenteraccdetailPK.centerid={0}", param["centerid"]) : "")    //篩選條件:按名称（organizationUnitName=XXXX）
+                        );
+
+                        api = string.Format("erp/budgetcenteracc/f{0}/s;id=ASC/{1}/{2}",
+                                    param.ContainsKey("condition") ? param["condition"] : "",   //搜尋條件 (;applyUser=xx;organizationUnitName=xx)
+                                    param.ContainsKey("StartRow") ? param["StartRow"] : "0",    //搜尋起始筆數
+                                    param.ContainsKey("EndRow") ? param["EndRow"] : "1000"      //搜尋結尾筆數
+                                );
+                        break;
+                    #endregion
+
+                    #region 预算中心查詢
+                    case "BudgetCenter":
+                        //api = "erp/budgetacc";
+                        //http://localhost:8480/Hanbell-JRS/api/erp/budgetcenter/f;budgetCenterPK.facno=C;budgetCenterPK.deptid=13120/s/0/1000?appid=1505278334853&token=0ec858293fccfad55575e26b0ce31177
+                        param.Add("condition",
+                            (param.ContainsKey("company") ? string.Format(";budgetcenterPK.facno={0}", param["company"]) : "") +                        //篩選條件:按代号(applyUser=XXXX)
+                            (param.ContainsKey("deptId") ? string.Format(";budgetcenterPK.deptid={0}", param["deptId"]) : "")    //篩選條件:按名称（organizationUnitName=XXXX）
+                        );
+
+                        api = string.Format("erp/budgetcenter/f{0}/s;id=ASC/{1}/{2}",
+                                    param.ContainsKey("condition") ? param["condition"] : "",   //搜尋條件 (;applyUser=xx;organizationUnitName=xx)
+                                    param.ContainsKey("StartRow") ? param["StartRow"] : "0",    //搜尋起始筆數
+                                    param.ContainsKey("EndRow") ? param["EndRow"] : "1000"      //搜尋結尾筆數
+                                );
+                        break;
+                        #endregion
+
                 }
 
                 if (!string.IsNullOrEmpty(api))
@@ -930,4 +976,123 @@ namespace cn.hanbell.mcloud
         }
     }
 
+    //币别
+    public class Coin
+    {
+        public List<KV> data;
+
+        public Coin()
+        {
+            data = new List<KV>();
+        }
+
+        public DataTable GetDataTable(string pSearch, string[] columns)
+        {
+            Dictionary<string, string[]> item = new Dictionary<string, string[]>();  //取得<欄位/值, 陣列值>
+
+            DataTable table = new DataTable();
+            for (int i = 0; i < this.data.Count; i++)
+            {
+                bool tInsertData = false;               //是否insert
+                item = this.data[i].GetItem(); //取得币别資料
+
+                //第一次進來要新增欄位
+                if (i == 0) foreach (var col in columns) table.Columns.Add(col);
+
+                //檢查搜尋
+                if (string.IsNullOrEmpty(pSearch))
+                {
+                    tInsertData = true;
+                }
+                else
+                {
+                    //有搜尋字段才需處理搜尋
+                    foreach (var value in item["Values"])
+                    {
+                        if (value.Contains(pSearch))
+                        {
+                            tInsertData = true;//找到就跳出
+                            break;
+                        }
+                    }
+                }
+
+                //新增資料
+                if (tInsertData) table.Rows.Add(item["Values"]);
+            }
+
+            return table;
+        }
+    }
+
+    //预算科目
+    public class BudgetAccno
+    {
+
+        public string company { get; set; }             //默认公司company
+        public string centerid { get; set; }            //预算中心      
+        public string budgetacc { get; set; }            //预算科目
+        public string accname { get; set; }            //科目名称
+        public List<KV> data;
+
+        public BudgetAccno()
+        {
+            data = new List<KV>();
+        }
+
+        public DataTable GetDataTable(string pSearch, string[] columns)
+        {
+            Dictionary<string, string[]> item = new Dictionary<string, string[]>();  //取得<欄位/值, 陣列值>
+
+            DataTable table = new DataTable();
+            for (int i = 0; i < this.data.Count; i++)
+            {
+                bool tInsertData = false;               //是否insert
+                item = this.data[i].GetItem(); //取得预算科目資料
+
+                //第一次進來要新增欄位
+                if (i == 0) foreach (var col in columns) table.Columns.Add(col);
+
+                //檢查搜尋
+                if (string.IsNullOrEmpty(pSearch))
+                {
+                    tInsertData = true;
+                }
+                else
+                {
+                    //有搜尋字段才需處理搜尋
+                    foreach (var value in item["Values"])
+                    {
+                        if (value.Contains(pSearch))
+                        {
+                            tInsertData = true;//找到就跳出
+                            break;
+                        }
+                    }
+                }
+
+                //新增資料
+                if (tInsertData) table.Rows.Add(item["Values"]);
+            }
+
+            return table;
+        }
+    }
+
+    //预算科目
+    public class BudgetCenter
+    {
+        public string company { get; set; }             //company
+        public string centerid { get; set; }            //预算中心      
+        public string deptid { get; set; }            //部门
+        public string deptname { get; set; }            
+        public string needcheck { get; set; }            
+        public List<KV> data;
+
+        public BudgetCenter()
+        {
+            data = new List<KV>();
+        }
+    }
+   
 }
