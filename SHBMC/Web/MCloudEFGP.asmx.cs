@@ -213,7 +213,58 @@ namespace cn.hanbell.mcloud
                                 break;
                         }
                         break;
-                   #endregion
+                    #endregion
+
+                    #region 借支申請
+                    case "HZCW017":
+                        switch (tServiceName)
+                        {
+                            case "BasicSetting":
+                                tP2Mxml = new HZCW017.HZCW017().GetBasicSetting(tM2PXDoc);
+                                break;
+                            case "openQueryCompany":          //公司別開窗
+                                tP2Mxml = new HZCW017.HZCW017().GetCompany_OpenQuery(tM2PXDoc);
+                                break;
+                            case "openQueryLoanProperty":
+                                tP2Mxml = new HZCW017.HZCW017().GetLoanProperty_OpenQuery(tM2PXDoc);
+                                break;
+                            case "loanproperty_OnBlur":
+                                tP2Mxml = new HZCW017.HZCW017().GetLoanProperty_OnBlur(tM2PXDoc);
+                                break;
+                            case "openQueryCoin":
+                                tP2Mxml = new HZCW017.HZCW017().GetCoin_OpenQuery(tM2PXDoc);
+                                break;
+                            case "coin_OnBlur":
+                                tP2Mxml = new HZCW017.HZCW017().GetCoin_OnBlur(tM2PXDoc);
+                                break;
+                            case "openQueryPreAccno":
+                                tP2Mxml = new HZCW017.HZCW017().GetPreAccno_OpenQuery(tM2PXDoc);
+                                break;
+                            case "preAccno_OnBlur":
+                                tP2Mxml = new HZCW017.HZCW017().GetPreAccno_OnBlur(tM2PXDoc);
+                                break;
+                            case "trafficfee_OnBlur":
+                                tP2Mxml = new HZCW017.HZCW017().GetLoanTotal_OnBlur(tM2PXDoc);
+                                break;
+                            case "accommodation_OnBlur":
+                                tP2Mxml = new HZCW017.HZCW017().GetLoanTotal_OnBlur(tM2PXDoc);
+                                break;
+                            case "allowance_OnBlur":
+                                tP2Mxml = new HZCW017.HZCW017().GetLoanTotal_OnBlur(tM2PXDoc);
+                                break;
+                            case "entertain_OnBlur":
+                                tP2Mxml = new HZCW017.HZCW017().GetLoanTotal_OnBlur(tM2PXDoc);
+                                break;
+                            case "other_OnBlur":
+                                tP2Mxml = new HZCW017.HZCW017().GetLoanTotal_OnBlur(tM2PXDoc);
+                                break;
+                            case "post":
+                                tP2Mxml = new HZCW017.HZCW017().InvokeProcess(tM2PXDoc);
+                                break;
+                        }
+                        break;
+                        #endregion
+
                 }
 
             }
