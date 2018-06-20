@@ -92,6 +92,7 @@
   <ItemGroup>
     <Compile Include="HKGL004.cs" />
     <Compile Include="HKGL034.cs" />
+    <Compile Include="HZCW017.cs" />
     <Compile Include="HZGL004.cs" />
     <Compile Include="MCloudEFGP.asmx.cs">
       <DependentUpon>MCloudEFGP.asmx</DependentUpon>
