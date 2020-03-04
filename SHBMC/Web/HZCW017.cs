@@ -81,7 +81,7 @@ namespace cn.hanbell.mcloud.HZCW017
                     tResponse = Utility.CallAPI(pM2Pxml, "Company", tparam, out tErrorMsg);
                     if (!string.IsNullOrEmpty(tErrorMsg)) return Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, tErrorMsg);
 
-                    tResponse = "{\"data\" : " + tResponse + "}";                                           //為符合class格式自己加上去的
+                    //tResponse = "{\"data\" : " + tResponse + "}";                                           //為符合class格式自己加上去的
                     Company CompanyClass = Utility.JSONDeserialize<Company>(tResponse);                        //轉class方便取用
                     DataTable tCompanyTable = CompanyClass.GetTable(EmployDetail.company);                   //取公司別table
                     DataRow[] tCompanyRow = tCompanyTable.Select("company = '" + EmployDetail.company + "'");       //查詢指定company
@@ -196,7 +196,7 @@ namespace cn.hanbell.mcloud.HZCW017
                 string tResponse = Utility.CallAPI(pM2Pxml, "Company", tparam, out tErrorMsg);
                 if (!string.IsNullOrEmpty(tErrorMsg)) return Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, tErrorMsg);
 
-                tResponse = "{\"data\" : " + tResponse + "}";                       //為符合class格式自己加上去的
+                //tResponse = "{\"data\" : " + tResponse + "}";                       //為符合class格式自己加上去的
                 Company CompanyClass = Utility.JSONDeserialize<Company>(tResponse);    //轉class方便取用
                 #endregion
 
