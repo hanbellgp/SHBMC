@@ -1049,9 +1049,9 @@ namespace cn.hanbell.mcloud.HZGL004
                 #endregion
 
                 #region 設定控件 
-                RCPControl tRCPbtnAdd = new RCPControl("btnAdd", "true", "true", null);          //新增按鈕
+                RCPControl tRCPbtnAdd = new RCPControl("Add", "true", "true", null);          //新增按鈕
                 RCPControl tRCPbtnEdit = new RCPControl("btnEdit", "true", "false", null);       //修改            
-                RCPControl tRCPbizEmployee = new RCPControl("bizEmployee", "false", null, null);      //(多人/新增)
+                RCPControl tRCPbizEmployee = new RCPControl("bizEmployee", "false", "true", null);      //(多人/新增)
                 RCPControl tRCPbizDate = new RCPControl("bizDate", "true", null, null);           //
                 RCPControl tRCPbizTime1 = new RCPControl("bizTime1", "true", null, null); //
                 RCPControl tRCPbizTime2 = new RCPControl("bizTime2", "true", null, null);//
@@ -1066,7 +1066,7 @@ namespace cn.hanbell.mcloud.HZGL004
                 string tStrLanguage = DataTransferManager.GetDataValue(pM2Pxml, "Language");//語系
                 string tStrUserID = DataTransferManager.GetUserMappingValue(pM2Pxml, "HANBELL");//登入者帳號
 
-                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");//暫存資料
+                string entityJSONStr = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");//暫存資料
                 string tStritem = DataTransferManager.GetControlsValue(pM2Pxml, "item");//判斷是新增或是修改
                 #endregion
 
@@ -1075,44 +1075,29 @@ namespace cn.hanbell.mcloud.HZGL004
                 if (string.IsNullOrEmpty(tStritem))//新增
                 {
                     #region 取得預設資料
-                    //設定參數
-                    //取得員工明細資料
-                    //tparam.Clear();
-                    //tparam.Add("UserID", tStrUserID);       //查詢對象
-
-                    ////叫用服務
-                    //string tResponse = Utility.CallAPI(pM2Pxml, "Users", tparam, out tErrorMsg);
-                    //if (!string.IsNullOrEmpty(tErrorMsg)) return Utility.ReturnErrorMsg(pM2Pxml, ref tP2MObject, tErrorMsg);
-
-                    ////回傳的JSON轉Class
-                    //Users EmployDetail = Utility.JSONDeserialize<Users>(tResponse);  //員工明細
-
-                    //取值
-
-                    string tDate = DateTime.Now.ToString("yyyy/MM/dd"); //加班日期
+                    string tDate = DateTime.Now.ToString("yyyy/MM/dd");//加班日期
                     string tTime = DateTime.Now.ToString("HH:mm");//加班起訖
                     #endregion
 
                     #region 給預設值
-                    //tRCPbizEmployee.Value = EmployDetail.id + "-" + EmployDetail.userName;
                     tRCPbizDate.Value = tDate;
                     tRCPbizTime1.Value = tTime;
                     tRCPbizTime2.Value = tTime;
-                    tRCPDocData.Value = tStrDocData;
+                    tRCPDocData.Value = entityJSONStr;
                     tRCPitem.Value = tStritem;//判斷是新增或是修改(隱)                    
                     #endregion
 
                     #region 設定物件屬性
                     tRCPbtnAdd.Visible = "true";           //新增按鈕
                     tRCPbtnEdit.Visible = "false";         //修改按鈕
-                    tRCPbizEmployee.Visible = "true";           //加班人員(多人/新增)
-                    #endregion                    
+                    #endregion
+
                 }
                 else //修改
                 {
                     #region 取得單身資料
                     //先將暫存資料轉成Class方便取用
-                    Entity entityClass = Utility.JSONDeserialize<Entity>(tStrDocData);//出差单暫存資料
+                    Entity entityClass = Utility.JSONDeserialize<Entity>(entityJSONStr);//出差单暫存資料
 
                     //取值
                     string bizEmployee = string.Empty;  //出差人员
@@ -1145,7 +1130,7 @@ namespace cn.hanbell.mcloud.HZGL004
                     tRCPbizObject.Value = bizObject;
                     tRCPbizAddress.Value = bizAddress;
                     tRCPbizContent.Value = bizContent;
-                    tRCPDocData.Value = tStrDocData;
+                    tRCPDocData.Value = entityJSONStr;
                     tRCPitem.Value = tStritem;
                     #endregion
 
@@ -1160,6 +1145,7 @@ namespace cn.hanbell.mcloud.HZGL004
                 tP2MObject.AddTimeout(300);
                 tP2MObject.AddRCPControls(tRCPbtnAdd, tRCPbtnEdit, tRCPbizEmployee, tRCPbizDate,
                                           tRCPbizTime1, tRCPbizTime2, tRCPbizObject, tRCPbizAddress, tRCPbizContent, tRCPDocData, tRCPitem);
+
             }
             catch (Exception err)
             {
@@ -1209,9 +1195,9 @@ namespace cn.hanbell.mcloud.HZGL004
                 string bizContent = DataTransferManager.GetControlsValue(pM2Pxml, "bizContent");
                 string item = DataTransferManager.GetControlsValue(pM2Pxml, "item");
 
-                string tStrDocData = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");
+                string entityJSONStr = DataTransferManager.GetControlsValue(pM2Pxml, "DocData");
                 //先將暫存資料轉成Class方便取用
-                Entity DocDataClass = Utility.JSONDeserialize<Entity>(tStrDocData);//出差单暫存資料
+                Entity entityClass = Utility.JSONDeserialize<Entity>(entityJSONStr);//出差单暫存資料
                 #endregion
 
                 #region 驗證輸入資料是否有問題
@@ -1303,11 +1289,11 @@ namespace cn.hanbell.mcloud.HZGL004
 
                 //資料驗證
                 //出差日期
-                DateTime day1 = Convert.ToDateTime(DocDataClass.startDate);
-                DateTime day2 = Convert.ToDateTime(DocDataClass.endDate); //申請日期
-                DateTime tbody_Date = Convert.ToDateTime(bizDate.Insert(4, "/").Insert(7, "/"));     //加班日期
+                DateTime day1 = Convert.ToDateTime(entityClass.startDate);
+                DateTime day2 = Convert.ToDateTime(entityClass.endDate);
+                DateTime tbody_Date = Convert.ToDateTime(bizDate.Insert(4, "/").Insert(7, "/"));    //明细日期
                 TimeSpan ts1 = tbody_Date - day1;
-                TimeSpan ts2 = tbody_Date - day2;                                                  //差異天數
+                TimeSpan ts2 = tbody_Date - day2;                                                   //差異天數
                 if (ts1.TotalDays < 0 || ts2.TotalDays > 0)
                 {
                     if ("Lang01".Equals(tStrLanguage))
@@ -1346,7 +1332,7 @@ namespace cn.hanbell.mcloud.HZGL004
                         #region 新增單身資料
                         string tKeyField = bizEmployee + bizDate + bizTime1; //key值
                         //檢查是否存在
-                        foreach (var bodyitem in DocDataClass.detailList)
+                        foreach (var bodyitem in entityClass.detailList)
                         {
                             if (tKeyField.Equals(bodyitem.item))
                             {
@@ -1368,7 +1354,7 @@ namespace cn.hanbell.mcloud.HZGL004
                             d.bizAddress = bizAddress;
                             d.bizContent = bizContent;
 
-                            DocDataClass.detailList.Add(d);
+                            entityClass.detailList.Add(d);
                         }
 
                         //有重的資料就回傳錯誤
@@ -1381,7 +1367,7 @@ namespace cn.hanbell.mcloud.HZGL004
                         break;
                     case "editBizDetail":            //修改明細
                         #region 修改單身資料
-                        foreach (var d in DocDataClass.detailList)
+                        foreach (var d in entityClass.detailList)
                         {
                             if (item.Equals(d.item))
                             {
@@ -1399,7 +1385,7 @@ namespace cn.hanbell.mcloud.HZGL004
                 }
 
                 #region 更新畫面欄位資料
-                tRCPDocData.Value = Utility.JSONSerialize(DocDataClass);//暫存
+                tRCPDocData.Value = Utility.JSONSerialize(entityClass);//暫存
                 #endregion
 
                 //處理回傳
